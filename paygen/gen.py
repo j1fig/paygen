@@ -1,11 +1,23 @@
+
 import json
-import numpy as np
+import random
+
 from faker import Faker
+import numpy as np
+
 
 # Performance related configuration
 USE_WEIGHTING = False
+DEFAULT_MAX_SIZE = 1 * 1024 * 1024
+DEFAULT_MIN_SIZE = 128
+DEFAULT_ALPHA = 2.0
+JSON_MIN_KEYS_PER_LEVEL = 2
+JSON_MAX_KEYS_PER_LEVEL = 8
+JSON_MAX_DEPTH = 3
+JSON_NESTING_CHANCE = 0.3
 
-def text_payloads(num_samples: int, min_size: int = 100, max_size: int = 1000000) -> list[bytes]:
+
+def text_payloads(num_samples: int, min_size: int = DEFAULT_MIN_SIZE, max_size: int = DEFAULT_MAX_SIZE) -> list[bytes]:
     """Generate a list of text payloads following a power law distribution.
     
     Args:
@@ -19,10 +31,8 @@ def text_payloads(num_samples: int, min_size: int = 100, max_size: int = 1000000
     fake = Faker(use_weighting=USE_WEIGHTING)
     payloads = []
     
-    # Generate power law distribution of sizes
-    alpha = 2.0  # Typical power law exponent for text data
+    alpha = DEFAULT_ALPHA
     sizes = np.random.power(alpha, size=num_samples)
-    # Scale sizes to our desired range
     sizes = min_size + (max_size - min_size) * sizes
     
     for size in sizes:
@@ -40,7 +50,7 @@ def text_payloads(num_samples: int, min_size: int = 100, max_size: int = 1000000
     return payloads
 
 
-def binary_payloads(num_samples: int, min_size: int = 100, max_size: int = 1000000) -> list[bytes]:
+def binary_payloads(num_samples: int, min_size: int = DEFAULT_MIN_SIZE, max_size: int = DEFAULT_MAX_SIZE) -> list[bytes]:
     """Generate a list of binary payloads following a power law distribution.
     
     Args:
@@ -54,10 +64,8 @@ def binary_payloads(num_samples: int, min_size: int = 100, max_size: int = 10000
     fake = Faker(use_weighting=USE_WEIGHTING)
     payloads = []
     
-    # Generate power law distribution of sizes
-    alpha = 2.0  # Typical power law exponent for binary data
+    alpha = DEFAULT_ALPHA
     sizes = np.random.power(alpha, size=num_samples)
-    # Scale sizes to our desired range
     sizes = min_size + (max_size - min_size) * sizes
     
     for size in sizes:
@@ -67,7 +75,7 @@ def binary_payloads(num_samples: int, min_size: int = 100, max_size: int = 10000
     return payloads
 
 
-def json_payloads(num_samples: int, min_size: int = 100, max_size: int = 1000000) -> list[bytes]:
+def json_payloads(num_samples: int, min_size: int = DEFAULT_MIN_SIZE, max_size: int = DEFAULT_MAX_SIZE) -> list[bytes]:
     """Generate a list of JSON payloads following a power law distribution.
     
     Args:
@@ -81,27 +89,23 @@ def json_payloads(num_samples: int, min_size: int = 100, max_size: int = 1000000
     fake = Faker(use_weighting=USE_WEIGHTING)
     payloads = []
     
-    # Generate power law distribution of sizes
-    alpha = 2.0  # Typical power law exponent for JSON data
+    alpha = DEFAULT_ALPHA
     sizes = np.random.power(alpha, size=num_samples)
-    # Scale sizes to our desired range
     sizes = min_size + (max_size - min_size) * sizes
 
     def generate_nested_value(depth=0):
-        if depth > 3 or fake.boolean(chance_of_getting_true=30):
-            # Generate larger arrays and strings to reduce recursion
+        if depth > JSON_MAX_DEPTH or random.random() < JSON_NESTING_CHANCE:
             choices = [
                 lambda: fake.text(max_nb_chars=100),
-                lambda: fake.random_number(),
-                lambda: fake.boolean(),
+                lambda: random.randint(0, 1000000),
+                lambda: random.choice([True, False]),
                 lambda: None,
-                lambda: [fake.text(max_nb_chars=50) for _ in range(fake.random_int(min=5, max=20))],
+                lambda: [fake.text(max_nb_chars=50) for _ in range(random.randint(5, 20))],
             ]
             return fake.random_element(choices)()
         
         nested = {}
-        # Generate more keys at once to reduce recursion
-        for _ in range(fake.random_int(min=5, max=15)):
+        for _ in range(random.randint(JSON_MIN_KEYS_PER_LEVEL, JSON_MAX_KEYS_PER_LEVEL)):
             nested[fake.word()] = generate_nested_value(depth + 1)
         return nested
 
@@ -109,8 +113,7 @@ def json_payloads(num_samples: int, min_size: int = 100, max_size: int = 1000000
         json_data = {}
         current_size = 0
         while current_size < size:
-            # Generate more keys at once to reduce iterations
-            for _ in range(fake.random_int(min=5, max=15)):
+            for _ in range(random.randint(JSON_MIN_KEYS_PER_LEVEL, JSON_MAX_KEYS_PER_LEVEL)):
                 key = fake.word()
                 json_data[key] = generate_nested_value()
             current_size = len(json.dumps(json_data).encode('utf-8'))
