@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "paygen"
-version = "0.1.4"
+version = "0.2.0"
 authors = [
     { name="Joao Figueiredo", email="joao@azulhq.com" },
 ]

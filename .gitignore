@@ -9,3 +9,7 @@ __pycache__
 .python-version
 dist/
 build/
+
+*.bin
+*.json
+*.txt
