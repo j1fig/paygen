@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "paygen"
-version = "0.2.1"
+version = "0.3.0"
 authors = [
     { name="Joao Figueiredo", email="joao@azulhq.com" },
 ]
@@ -16,7 +16,8 @@ dependencies = [
     "hatchling>=1.27.0",
     "numpy>=2.2.5",
     "typer>=0.15.3",
+    "tqdm>=4.66.0",
 ]
 
 [project.scripts]
-paygen = "paygen.main:app"
+paygen = "paygen.cli:app"
