@@ -62,7 +62,7 @@ def binary_payloads(num_samples: int, min_size: int = 100, max_size: int = 10000
     
     for size in sizes:
         # Generate the entire binary payload at once
-        payloads.append(fake.binary(length=size))
+        payloads.append(fake.binary(length=int(size)))
         
     return payloads
 
