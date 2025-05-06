@@ -1,0 +1,22 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "paygen"
+version = "0.1.1"
+authors = [
+    { name="Joao Figueiredo", email="joao@azulhq.com" },
+]
+description = "A tool for generating web payloads"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "faker>=37.1.0",
+    "hatchling>=1.27.0",
+    "numpy>=2.2.5",
+    "typer>=0.15.3",
+]
+
+[project.scripts]
+paygen = "paygen.main:app"
