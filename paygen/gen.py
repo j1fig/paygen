@@ -19,10 +19,10 @@ JSON_NESTING_CHANCE = 0.3
 
 
 def _gen_filesizes(samples, min_size, max_size):
-    alpha = DEFAULT_ALPHA
-    sizes = np.random.power(alpha, size=samples)
+    # Generate power law distribution with a bias towards smaller files
+    sizes = 1 - np.random.power(DEFAULT_ALPHA, size=samples)
+    # Scale sizes to our desired range
     sizes = min_size + (max_size - min_size) * sizes
-
     return [int(s) for s in sizes]
 
 
